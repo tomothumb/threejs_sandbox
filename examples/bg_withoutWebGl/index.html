@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>My first three.js app</title>
+    <style>
+        body { margin: 0; }
+        body {
+            margin: 0;
+            padding: 0;
+            /*overscroll-behavior: none;*/
+        }
+
+        #canvas{
+            position: fixed;
+            top: 25vh;
+            left: 25vw;
+            /*border: 1px solid red;*/
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background-color: #999;
+        }
+        header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+        }
+        #info_s1 {
+
+        }
+        .flex{
+         display: flex;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="flex">
+        <span>｜s1：</span>
+    <div id="info_s1"></div>
+        <span>｜s2：</span>
+    <div id="info_s2"></div>
+        <span>｜s3：</span>
+    <div id="info_s3"></div>
+        <span>-</span>
+        <span>｜x：</span>
+        <div id="info_x"></div>
+        <span>｜y：</span>
+        <div id="info_y"></div>
+
+        <span>｜ステージ：</span>
+        <div id="info_stage"></div>
+    </div>
+</header>
+
+<section id="s1">
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+    <p>おはよう</p>
+</section>
+<section id="s2">
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+    <p>こんにちは</p>
+</section>
+<section id="s3">
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+    <p>こんばんは</p>
+</section>
+<div id="canvas"></div>
+<script type="module" src="./main_bg2.js"></script>
+</body>
+</html>
