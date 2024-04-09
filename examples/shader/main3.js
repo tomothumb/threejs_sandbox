@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import {OrbitControls} from "three/addons/controls/OrbitControls";
 
 let main_camera, main_scene, main_renderer, main_material, main_mesh;
+let plane_mesh, sphere_mesh;
 const background_color = 0xFAFAFA
 const canvas = document.querySelector( '#webgl_canvas' );
 
@@ -20,6 +21,7 @@ const setting = {
     box_w: 10,
     box_h: 10,
     box_d: 10,
+    sphere_segments: 50,
 }
 
 // 頂点シェーダー
@@ -99,13 +101,29 @@ function setupMainScene(){
     });
 
     const main_geometry = new THREE.BoxGeometry(setting.box_w, setting.box_h, setting.box_d);
-    // const main_geometry = new THREE.PlaneGeometry(setting.box_w, setting.box_h);
-
     // 入れ子にする
     main_mesh = new THREE.Mesh( main_geometry, main_material );
     main_mesh.rotation.x = 0.5;
     main_mesh.rotation.y = 0.5;
     main_scene.add( main_mesh );
+
+    const plane_geometry = new THREE.PlaneGeometry(setting.box_w*2, setting.box_h*2);
+    const plane_mMaterial = new THREE.MeshBasicMaterial( {
+        color: 0xffff00,
+        side: THREE.DoubleSide // 両面表示
+    } );
+    const plane_mesh = new THREE.Mesh( plane_geometry, plane_mMaterial );
+    main_scene.add( plane_mesh );
+
+    const sphere_geometry = new THREE.SphereGeometry( 10, setting.sphere_segments, setting.sphere_segments);
+    const sphere_material = new THREE.MeshLambertMaterial( {color: 0xff0000,
+        wireframe: true,
+    } );
+    const sphere_mesh = new THREE.Mesh( sphere_geometry, sphere_material );
+    main_scene.add( sphere_mesh );
+    sphere_mesh.position.x = -10;
+    sphere_mesh.position.y = 5;
+
 }
 
 
@@ -120,12 +138,13 @@ function render(time){
     }
 
     main_material.uniforms.time.value += 0.01;
-    main_mesh.rotation.x += time / 1000
-    main_mesh.rotation.y += time / 1000
+    main_mesh.rotation.x += 0.01
+    main_mesh.rotation.y += 0.01
 
     main_renderer.render( main_scene, main_camera );
     requestAnimationFrame( render );
 }
+
 
 
 function resizeRendererToDisplaySize( renderer ) {
