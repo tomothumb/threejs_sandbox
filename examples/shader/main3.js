@@ -228,6 +228,8 @@ function resizeRendererToDisplaySize( renderer ) {
     const needResize = canvas.width !== width || canvas.height !== height;
     if ( needResize ) {
         renderer.setSize( width, height, false );
+        // main_camera.aspect = window.innerWidth / window.innerHeight;
+        // main_camera.updateProjectionMatrix();
     }
     return needResize;
 }
