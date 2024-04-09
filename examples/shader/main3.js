@@ -7,6 +7,7 @@ import * as dat from 'dat.gui';
 
 let main_camera, main_scene, main_renderer, main_material, main_mesh;
 let plane_mesh, sphere_mesh, sphere_material, spotLight;
+let wave_plate_mesh, wave_plate_geometry;
 const background_color = 0xCCCCCC
 const canvas = document.querySelector( '#webgl_canvas' );
 const gui = new dat.GUI();
@@ -14,6 +15,8 @@ const guiOption = {
     sphereColor: '#FF0000',
     wireframe: false,
     speed: 0.01,
+    wave_speed: 5,
+    wave_segment: 10,
 }
 
 const setting = {
@@ -57,7 +60,7 @@ const shaderTpl = {
 
 function setupFog() {
     // フォグ
-    main_scene.fog = new THREE.FogExp2(0xFFFFFF, 0.01);
+    main_scene.fog = new THREE.FogExp2(0xFFFFFF, 0.005);
 }
 
 function init(){
@@ -69,6 +72,9 @@ function init(){
     setupLights();
     setupFog();
     setupHelpers();
+
+    setupWavePlate();
+
     setupDebugger();
     requestAnimationFrame( render );
 }
@@ -127,11 +133,25 @@ function setupDebugger(){
         sphere_material.wireframe = val;
     });
     gui.add(guiOption, 'speed', 0, 0.1)
+    gui.add(guiOption, 'wave_speed', 1, 20)
+    gui.add(guiOption, 'wave_segment', 2, 30).step(1).onChange(function(value) {
+        updateWavePlate(value);
+    });
+
+
     //     .onChange((val) => {
     //     main_material.uniforms.time.value = val;
     //     main_material.uniforms.time.value = val;
     // });
 }
+
+// 平面ジオメトリを更新する関数
+function updateWavePlate(value) {
+    let newGeometry = new THREE.PlaneGeometry(setting.box_w*5, setting.box_w*5, value, value);
+    wave_plate_mesh.geometry.dispose(); // 古いジオメトリをメモリから解放
+    wave_plate_mesh.geometry = newGeometry;
+}
+
 
 function setupMainScene(){
 
@@ -196,6 +216,37 @@ function setupMainScene(){
 
 }
 
+function setupWavePlate(){
+    wave_plate_geometry = new THREE.PlaneGeometry( 40, 40, guiOption.wave_segment, guiOption.wave_segment );
+    const wave_plate_material = new THREE.MeshStandardMaterial( {
+        color: 0x00FFFF,
+        wireframe: true,
+        side: THREE.DoubleSide // 両面表示
+    } );
+    wave_plate_mesh = new THREE.Mesh( wave_plate_geometry, wave_plate_material );
+    main_scene.add(wave_plate_mesh)
+    wave_plate_mesh.position.set(20, 20, -30)
+    wavedPlatePosition(1);
+}
+
+function wavedPlatePosition(time){
+
+    const move_setting = [];
+    for (let y = 0; y <= guiOption.wave_segment + 1; y++) {
+        for (let x = 0; x <= guiOption.wave_segment + 1; x++) {
+            const i = (y * (guiOption.wave_segment + 1)*3) + (x*3) + 2; // z座標のインデックス
+
+
+            const reset_time = (time / guiOption.wave_speed) % (360) + (x * 30) + (y * 30)
+
+            const degrees= reset_time
+            const radians = degrees * (Math.PI / 180)
+            wave_plate_mesh.geometry.attributes.position.array[i]
+                = 2 * Math.sin( radians )
+        }
+    }
+
+}
 
 let step = 0;
 function render(time){
@@ -213,6 +264,11 @@ function render(time){
 
     step += guiOption.speed
     sphere_mesh.position.y = 20 * Math.abs(Math.sin(step));
+
+    // 波
+    wavedPlatePosition(time);
+    wave_plate_mesh.geometry.attributes.position.needsUpdate = true
+
 
     main_renderer.render( main_scene, main_camera );
     requestAnimationFrame( render );
