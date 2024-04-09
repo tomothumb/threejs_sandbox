@@ -25,10 +25,10 @@ const setting = {
     light_intensity: 1,
     light_x: -20,
     light_y: 50,
-    light_z: 4,
-    box_w: 10,
-    box_h: 10,
-    box_d: 10,
+    light_z: 40,
+    box_w: 8,
+    box_h: 8,
+    box_d: 8,
     sphere_segments: 50,
 }
 
@@ -60,6 +60,7 @@ function init(){
     console.log('fn init')
     // レンダラ
     main_renderer = new THREE.WebGLRenderer( { antialias: true, canvas } );
+    main_renderer.shadowMap.enabled = true;
     setupMainScene();
     setupLights();
     setupHelpers();
@@ -88,10 +89,19 @@ function setupLights(){
     const direction_light = new THREE.DirectionalLight( setting.light_color, setting.light_intensity );
     direction_light.position.set( setting.light_x, setting.light_y, setting.light_z );
     main_scene.add( direction_light );
+    direction_light.castShadow = true;
+    direction_light.shadow.camera.left = -20
+    direction_light.shadow.camera.right = 10
+    direction_light.shadow.camera.top = 10
+    direction_light.shadow.camera.bottom = -20
 
     // ライトヘルパー
-    const dlightHelper = new THREE.DirectionalLightHelper( direction_light, 5 );
+    const dlightHelper = new THREE.DirectionalLightHelper( direction_light, 25 );
     main_scene.add( dlightHelper );
+
+    // カメラヘルパー
+    const dlightCameraHelper = new THREE.CameraHelper( direction_light.shadow.camera );
+    main_scene.add( dlightCameraHelper );
 
 }
 
@@ -149,13 +159,14 @@ function setupMainScene(){
     main_mesh.rotation.y = 0.5;
     main_scene.add( main_mesh );
 
-    const plane_geometry = new THREE.PlaneGeometry(setting.box_w*2, setting.box_h*2);
-    const plane_material = new THREE.MeshBasicMaterial( {
+    const plane_geometry = new THREE.PlaneGeometry(setting.box_w*5, setting.box_h*5);
+    const plane_material = new THREE.MeshStandardMaterial( {
         color: 0xffff00,
         side: THREE.DoubleSide // 両面表示
     } );
     plane_mesh = new THREE.Mesh( plane_geometry, plane_material );
     main_scene.add( plane_mesh );
+    plane_mesh.receiveShadow = true;
 
     const sphere_geometry = new THREE.SphereGeometry( 10, setting.sphere_segments, setting.sphere_segments);
     sphere_material = new THREE.MeshLambertMaterial( {
@@ -166,6 +177,8 @@ function setupMainScene(){
     main_scene.add( sphere_mesh );
     sphere_mesh.position.x = -12;
     sphere_mesh.position.y = 5;
+    sphere_mesh.position.z = 20;
+    sphere_mesh.castShadow = true;
 
 }
 
@@ -185,7 +198,7 @@ function render(time){
     main_mesh.rotation.y += 0.01
 
     step += guiOption.speed
-    sphere_mesh.position.y = 10 * Math.abs(Math.sin(step));
+    sphere_mesh.position.y = 20 * Math.abs(Math.sin(step));
 
     main_renderer.render( main_scene, main_camera );
     requestAnimationFrame( render );
