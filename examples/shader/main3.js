@@ -55,6 +55,10 @@ const shaderTpl = {
 }
 
 
+function setupFog() {
+    // フォグ
+    main_scene.fog = new THREE.FogExp2(0xFFFFFF, 0.01);
+}
 
 function init(){
     console.log('fn init')
@@ -63,6 +67,7 @@ function init(){
     main_renderer.shadowMap.enabled = true;
     setupMainScene();
     setupLights();
+    setupFog();
     setupHelpers();
     setupDebugger();
     requestAnimationFrame( render );
