@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "dat.gui": "^0.7.9",
     "perlin-noise": "^0.0.1",
     "three": "^0.156.1"
   },

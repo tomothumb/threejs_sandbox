@@ -1,12 +1,20 @@
 import * as THREE from 'three';
-
 // ドラッグできるようにする
 import {OrbitControls} from "three/addons/controls/OrbitControls";
+// dat.gui
+import * as dat from 'dat.gui';
+
 
 let main_camera, main_scene, main_renderer, main_material, main_mesh;
 let plane_mesh, sphere_mesh;
 const background_color = 0xFAFAFA
 const canvas = document.querySelector( '#webgl_canvas' );
+const gui = new dat.GUI();
+const guiOption = {
+    sphereColor: '#FF0000',
+    wireframe: false,
+    speed: 0.01
+}
 
 const setting = {
     fov: 75, //  field of view (視野角)
@@ -108,28 +116,41 @@ function setupMainScene(){
     main_scene.add( main_mesh );
 
     const plane_geometry = new THREE.PlaneGeometry(setting.box_w*2, setting.box_h*2);
-    const plane_mMaterial = new THREE.MeshBasicMaterial( {
+    const plane_material = new THREE.MeshBasicMaterial( {
         color: 0xffff00,
         side: THREE.DoubleSide // 両面表示
     } );
-    const plane_mesh = new THREE.Mesh( plane_geometry, plane_mMaterial );
+    plane_mesh = new THREE.Mesh( plane_geometry, plane_material );
     main_scene.add( plane_mesh );
 
     const sphere_geometry = new THREE.SphereGeometry( 10, setting.sphere_segments, setting.sphere_segments);
-    const sphere_material = new THREE.MeshLambertMaterial( {color: 0xff0000,
-        wireframe: true,
+    const sphere_material = new THREE.MeshLambertMaterial( {
+        color: guiOption.sphereColor,
+        wireframe: guiOption.wireframe,
     } );
-    const sphere_mesh = new THREE.Mesh( sphere_geometry, sphere_material );
+    sphere_mesh = new THREE.Mesh( sphere_geometry, sphere_material );
     main_scene.add( sphere_mesh );
-    sphere_mesh.position.x = -10;
+    sphere_mesh.position.x = -12;
     sphere_mesh.position.y = 5;
+
+    gui.addColor(guiOption, 'sphereColor').onChange((val) => {
+        sphere_material.color.set(val);
+    });
+    gui.add(guiOption, 'wireframe').onChange((val) => {
+        sphere_material.wireframe = val;
+    });
+    gui.add(guiOption, 'speed', 0, 0.1)
+    //     .onChange((val) => {
+    //     main_material.uniforms.time.value = val;
+    //     main_material.uniforms.time.value = val;
+    // });
 
 }
 
 
+let step = 0;
 function render(time){
     // console.log('fn render')
-    time *= 0.001;
 
     if ( resizeRendererToDisplaySize( main_renderer ) ) {
         const canvas = main_renderer.domElement;
@@ -140,6 +161,9 @@ function render(time){
     main_material.uniforms.time.value += 0.01;
     main_mesh.rotation.x += 0.01
     main_mesh.rotation.y += 0.01
+
+    step += guiOption.speed
+    sphere_mesh.position.y = 10 * Math.abs(Math.sin(step));
 
     main_renderer.render( main_scene, main_camera );
     requestAnimationFrame( render );
