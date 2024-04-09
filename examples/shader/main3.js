@@ -1,3 +1,7 @@
+/**
+ * @tutorial
+ * https://www.youtube.com/watch?v=xJAfLdUgdc4
+ */
 import * as THREE from 'three';
 // ドラッグできるようにする
 import {OrbitControls} from "three/addons/controls/OrbitControls";
@@ -8,8 +12,11 @@ import * as dat from 'dat.gui';
 let main_camera, main_scene, main_renderer, main_material, main_mesh;
 let plane_mesh, sphere_mesh, sphere_material, spotLight;
 let wave_plate_mesh, wave_plate_geometry;
+let shader_wave_mesh;
 const background_color = 0xCCCCCC
 const canvas = document.querySelector( '#webgl_canvas' );
+
+const clock = new THREE.Clock();
 const gui = new dat.GUI();
 const guiOption = {
     sphereColor: '#FF0000',
@@ -57,6 +64,48 @@ const shaderTpl = {
         }`
 }
 
+//
+const waveShaderTpl = {
+    vertex : `
+        uniform float u_time;
+        varying vec2 vUv;
+        void main() {
+            vUv = uv;
+            float newX = sin(position.x * u_time)  * 10.0 + 10.0;
+            vec3 newPosition = vec3(newX, position.y, position.z);
+            // gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }`,
+    fragment : `
+        uniform float u_time;
+        uniform vec2 u_resolution;
+        uniform vec2 u_mouse;
+        varying vec2 vUv;
+        void main() {
+            vec2 st = gl_FragCoord.xy / u_resolution;
+            gl_FragColor = vec4(1.0-(u_mouse.x * u_mouse.y), u_mouse.x, u_mouse.y, 1.0);
+            
+        }`
+}
+
+const wave_uniforms = {
+    u_time: {type: 'f', value: 0.0 },
+    u_resolution: {
+        type: 'v2',
+        value: new THREE.Vector2(window.innerWidth, window.innerHeight)
+            .multiplyScalar(window.devicePixelRatio)
+    },
+    u_mouse: {
+        type: 'v2',
+        value: new THREE.Vector2(50.0,50.0)
+    }
+}
+
+window.addEventListener('mousemove', (e) => {
+    wave_uniforms.u_mouse.value.set(
+        e.screenX / window.innerWidth,
+        1 - e.screenY / window.innerHeight)
+});
 
 function setupFog() {
     // フォグ
@@ -74,7 +123,7 @@ function init(){
     setupHelpers();
 
     setupWavePlate();
-
+    setupShaderWavePlate();
     setupDebugger();
     requestAnimationFrame( render );
 }
@@ -136,6 +185,7 @@ function setupDebugger(){
     gui.add(guiOption, 'wave_speed', 1, 20)
     gui.add(guiOption, 'wave_segment', 2, 30).step(1).onChange(function(value) {
         updateWavePlate(value);
+        updateShaderWavePlate(value);
     });
 
 
@@ -150,6 +200,11 @@ function updateWavePlate(value) {
     let newGeometry = new THREE.PlaneGeometry(setting.box_w*5, setting.box_w*5, value, value);
     wave_plate_mesh.geometry.dispose(); // 古いジオメトリをメモリから解放
     wave_plate_mesh.geometry = newGeometry;
+}
+function updateShaderWavePlate(value) {
+    let newGeometry = new THREE.PlaneGeometry(setting.box_w*5, setting.box_w*5, value, value);
+    shader_wave_mesh.geometry.dispose(); // 古いジオメトリをメモリから解放
+    shader_wave_mesh.geometry = newGeometry;
 }
 
 
@@ -207,6 +262,7 @@ function setupMainScene(){
         color: guiOption.sphereColor,
         wireframe: guiOption.wireframe,
     } );
+
     sphere_mesh = new THREE.Mesh( sphere_geometry, sphere_material );
     main_scene.add( sphere_mesh );
     sphere_mesh.position.x = -12;
@@ -215,6 +271,21 @@ function setupMainScene(){
     sphere_mesh.castShadow = true;
 
 }
+
+function setupShaderWavePlate(){
+
+    const shader_wave_geometry = new THREE.PlaneGeometry( 40, 40, guiOption.wave_segment, guiOption.wave_segment );
+    const shader_wave_material = new THREE.ShaderMaterial({
+        vertexShader: waveShaderTpl.vertex,
+        fragmentShader: waveShaderTpl.fragment,
+        // wireframe: true,
+        uniforms: wave_uniforms
+    });
+    shader_wave_mesh = new THREE.Mesh( shader_wave_geometry, shader_wave_material );
+    main_scene.add(shader_wave_mesh)
+    shader_wave_mesh.position.set(-30, 20, -30)
+}
+
 
 function setupWavePlate(){
     wave_plate_geometry = new THREE.PlaneGeometry( 40, 40, guiOption.wave_segment, guiOption.wave_segment );
@@ -268,6 +339,9 @@ function render(time){
     // 波
     wavedPlatePosition(time);
     wave_plate_mesh.geometry.attributes.position.needsUpdate = true
+
+
+    wave_uniforms.u_time.value = clock.getElapsedTime();
 
 
     main_renderer.render( main_scene, main_camera );
