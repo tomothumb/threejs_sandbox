@@ -6,8 +6,8 @@ import * as dat from 'dat.gui';
 
 
 let main_camera, main_scene, main_renderer, main_material, main_mesh;
-let plane_mesh, sphere_mesh;
-const background_color = 0xFAFAFA
+let plane_mesh, sphere_mesh, sphere_material;
+const background_color = 0xCCCCCC
 const canvas = document.querySelector( '#webgl_canvas' );
 const gui = new dat.GUI();
 const guiOption = {
@@ -23,8 +23,8 @@ const setting = {
     // aspect: 2,
     light_color: 0xFFFFFF,
     light_intensity: 1,
-    light_x: -1,
-    light_y: 2,
+    light_x: -20,
+    light_y: 50,
     light_z: 4,
     box_w: 10,
     box_h: 10,
@@ -61,11 +61,57 @@ function init(){
     // レンダラ
     main_renderer = new THREE.WebGLRenderer( { antialias: true, canvas } );
     setupMainScene();
+    setupLights();
+    setupHelpers();
+    setupDebugger();
     requestAnimationFrame( render );
 }
 
+function setupHelpers(){
+
+    // グリッドヘルパー
+    const gridHelper = new THREE.GridHelper( 100, 50 );
+    main_scene.add( gridHelper );
+
+    // 軸ヘルパー
+    const axesHelper = new THREE.AxesHelper( 100 );
+    main_scene.add( axesHelper );
+}
+
+function setupLights(){
+
+    // 環境光
+    const ambient_light = new THREE.AmbientLight( 0x333333 );
+    main_scene.add( ambient_light );
+
+    // ライト
+    const direction_light = new THREE.DirectionalLight( setting.light_color, setting.light_intensity );
+    direction_light.position.set( setting.light_x, setting.light_y, setting.light_z );
+    main_scene.add( direction_light );
+
+    // ライトヘルパー
+    const dlightHelper = new THREE.DirectionalLightHelper( direction_light, 5 );
+    main_scene.add( dlightHelper );
+
+}
+
+function setupDebugger(){
+
+    gui.addColor(guiOption, 'sphereColor').onChange((val) => {
+        sphere_material.color.set(val);
+    });
+    gui.add(guiOption, 'wireframe').onChange((val) => {
+        sphere_material.wireframe = val;
+    });
+    gui.add(guiOption, 'speed', 0, 0.1)
+    //     .onChange((val) => {
+    //     main_material.uniforms.time.value = val;
+    //     main_material.uniforms.time.value = val;
+    // });
+}
 
 function setupMainScene(){
+
     // カメラ
     main_camera = new THREE.PerspectiveCamera(
         setting.fov,
@@ -82,18 +128,6 @@ function setupMainScene(){
     main_scene = new THREE.Scene();
     main_scene.background = new THREE.Color(background_color);
 
-    // グリッドヘルパー
-    const gridHelper = new THREE.GridHelper( 100, 50 );
-    main_scene.add( gridHelper );
-
-    // 軸ヘルパー
-    const axesHelper = new THREE.AxesHelper( 100 );
-    main_scene.add( axesHelper );
-
-    // ライト
-    const main_light = new THREE.DirectionalLight( setting.light_color, setting.light_intensity );
-    main_light.position.set( setting.light_x, setting.light_y, setting.light_z );
-    main_scene.add( main_light );
 
     // テクスチャとしてマッピングする
     // const main_material = new THREE.MeshStandardMaterial({
@@ -124,7 +158,7 @@ function setupMainScene(){
     main_scene.add( plane_mesh );
 
     const sphere_geometry = new THREE.SphereGeometry( 10, setting.sphere_segments, setting.sphere_segments);
-    const sphere_material = new THREE.MeshLambertMaterial( {
+    sphere_material = new THREE.MeshLambertMaterial( {
         color: guiOption.sphereColor,
         wireframe: guiOption.wireframe,
     } );
@@ -132,18 +166,6 @@ function setupMainScene(){
     main_scene.add( sphere_mesh );
     sphere_mesh.position.x = -12;
     sphere_mesh.position.y = 5;
-
-    gui.addColor(guiOption, 'sphereColor').onChange((val) => {
-        sphere_material.color.set(val);
-    });
-    gui.add(guiOption, 'wireframe').onChange((val) => {
-        sphere_material.wireframe = val;
-    });
-    gui.add(guiOption, 'speed', 0, 0.1)
-    //     .onChange((val) => {
-    //     main_material.uniforms.time.value = val;
-    //     main_material.uniforms.time.value = val;
-    // });
 
 }
 
