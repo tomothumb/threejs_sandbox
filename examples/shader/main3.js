@@ -13,10 +13,21 @@ let main_camera, main_scene, main_renderer, main_material, main_mesh;
 let plane_mesh, sphere_mesh, sphere_material, spotLight;
 let wave_plate_mesh, wave_plate_geometry;
 let shader_wave_mesh;
+let sphere_meshId;
 const background_color = 0xCCCCCC
 const canvas = document.querySelector( '#webgl_canvas' );
 
+// マウスコントローラー
+const mousePosition = new THREE.Vector2();
+window.addEventListener('mousemove', (e) => {
+    mousePosition.x = (e.clientX / window.innerWidth) * 2 - 1;
+    mousePosition.y = - (e.clientY / window.innerHeight) * 2 + 1
+});
+
+const rayCaster = new THREE.Raycaster();
+
 const clock = new THREE.Clock();
+// Dat GUI
 const gui = new dat.GUI();
 const guiOption = {
     sphereColor: '#FF0000',
@@ -119,12 +130,15 @@ function init(){
     main_renderer.shadowMap.enabled = true;
     setupMainScene();
     setupLights();
+
+
     setupFog();
     setupHelpers();
 
     setupWavePlate();
     setupShaderWavePlate();
     setupDebugger();
+
     requestAnimationFrame( render );
 }
 
@@ -256,7 +270,7 @@ function setupMainScene(){
     main_scene.add( plane_mesh );
     plane_mesh.receiveShadow = true;
     plane_mesh.rotation.x = -0.5 * Math.PI
-
+    plane_mesh.name = 'demo_plate'
     const sphere_geometry = new THREE.SphereGeometry( 10, setting.sphere_segments, setting.sphere_segments);
     sphere_material = new THREE.MeshLambertMaterial( {
         color: guiOption.sphereColor,
@@ -264,6 +278,7 @@ function setupMainScene(){
     } );
 
     sphere_mesh = new THREE.Mesh( sphere_geometry, sphere_material );
+    sphere_meshId = sphere_mesh.id;
     main_scene.add( sphere_mesh );
     sphere_mesh.position.x = -12;
     sphere_mesh.position.y = 5;
@@ -278,7 +293,7 @@ function setupShaderWavePlate(){
     const shader_wave_material = new THREE.ShaderMaterial({
         vertexShader: waveShaderTpl.vertex,
         fragmentShader: waveShaderTpl.fragment,
-        // wireframe: true,
+        wireframe: true,
         uniforms: wave_uniforms
     });
     shader_wave_mesh = new THREE.Mesh( shader_wave_geometry, shader_wave_material );
@@ -343,6 +358,19 @@ function render(time){
 
     wave_uniforms.u_time.value = clock.getElapsedTime();
 
+
+
+    rayCaster.setFromCamera(mousePosition, main_camera)
+
+    const intersects = rayCaster.intersectObjects(main_scene.children);
+    for(let i = 0; i < intersects.length; i++){
+        if(intersects[i].object.id === sphere_meshId) {
+            intersects[i].object.material.color.set(0x00FF00)
+        }
+        if(intersects[i].object.name === 'demo_plate') {
+            intersects[i].object.material.color.set(0x00FF00)
+        }
+    }
 
     main_renderer.render( main_scene, main_camera );
     requestAnimationFrame( render );
