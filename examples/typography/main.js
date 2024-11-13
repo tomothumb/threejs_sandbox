@@ -121,6 +121,7 @@ async function loadAndSetupGoogleFont(scene){
         // ピクセルデータを取得
         const text_imageData = text_context.getImageData(0, 0, text_canvas.width, text_canvas.height);
         const { data:text_bitmap_data,width: text_bitmap_width,height: text_bitmap_height } = text_imageData;
+        console.log(text_imageData)
 
         // console.log(text_bitmap_data, text_bitmap_width, text_bitmap_height);
         // パーティクルを操作
@@ -131,7 +132,7 @@ async function loadAndSetupGoogleFont(scene){
                 const index = (y * text_bitmap_width + x) * 4;
                 const alpha = text_bitmap_data[index + 3];            // アルファ値をチェック
 
-                if (alpha >128) {                        // 透明度が一定以上のピクセルのみ
+                if (alpha >= 128) {                        // 透明度が一定以上のピクセルのみ
                     const particle = new THREE.Sprite(new THREE.SpriteMaterial({ color: 0x000000 }));
                     particle.position.set((x - text_bitmap_width/2) / 20 , (text_bitmap_height * 1 - y) / 20 , 0);
                     particle.scale.set(0.04, 0.04, 0.04);   // パーティクルサイズを設定
@@ -246,7 +247,7 @@ function render(time){
         particle.position.y -= 0.0005 - particle.velocityY; // 垂直方向の動き
 
         // 透明度を徐々に減少させる
-        particle.material.opacity -= 0.025;
+        particle.material.opacity -= 0.015;
 
         // 透明度が0以下になったらシーンから削除
         if (particle.material.opacity <= 0) {
