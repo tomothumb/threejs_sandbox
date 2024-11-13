@@ -146,7 +146,7 @@ function init(){
         canvas } );
     main_renderer.shadowMap.enabled = true;
     setupMainScene();
-    setupLights();j
+    setupLights();
     // setupFog();
     setupHelpers();
     setupDebugger();
