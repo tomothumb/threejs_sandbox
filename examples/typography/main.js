@@ -8,19 +8,49 @@ const fontLoader = new FontLoader();
 let main_camera, main_scene, main_renderer;
 const canvas = document.querySelector( '#webgl_canvas' );
 
+
+
+// テキスト入力のためのHTML要素を作成
+const input = document.createElement('input');
+input.type = 'text';
+input.placeholder = 'Type something...';
+document.body.appendChild(input);
+
 const setting = {
     background_color: 0xEFEFEF,
-    fov: 45,
+    fov: 35,
     near : .1,
     far: 1000,
 
-    camera_x: 25,
-    camera_y: 30,
-    camera_z: 80,
+    camera_x: 15,
+    camera_y: 10,
+    camera_z: 30,
 
     light_color: 0xFFFFFF,
+
+    message: 'Hello,Three.js! こんにちは、日本から！',
 }
 
+// START: テキスト用のCanvasとThree.jsのPlaneGeometryを作成 //
+const text_canvas = document.createElement('canvas');
+text_canvas.width = 700;
+text_canvas.height = 100;
+
+const text_context = text_canvas.getContext('2d');
+const text_texture = new THREE.CanvasTexture(text_canvas);
+// CanvasをテクスチャとしてThree.jsで使用
+const text_material = new THREE.MeshBasicMaterial({
+    map: text_texture,
+    // transparent: true
+});
+// PlaneGeometryのアスペクト比をCanvasと同じに設定
+const text_planeGeometry = new THREE.PlaneGeometry(text_canvas.width/30, text_canvas.height/30);
+
+const text_plane = new THREE.Mesh(text_planeGeometry, text_material);
+text_plane.position.x = 0;
+text_plane.position.y = 5;
+text_plane.position.z = 0;
+// END
 
 function init(){
     console.log('fn init')
@@ -35,12 +65,63 @@ function init(){
     main_scene = attachAmbientLight(main_scene);
     setupMainScene2();
 
+    main_scene.add(text_plane);
+
+    setupGoogleFont(main_scene);
+
 
     requestAnimationFrame( render );
 }
 
 
+// Canvasにテキストを描画する関数
+function updateCanvasText(message) {
+    // 背景をクリア
+    text_context.clearRect(0, 0, text_canvas.width, text_canvas.height);
 
+    // フォントスタイルを設定してテキストを描画
+    text_context.font = '100px "Kiwi Maru"';
+    text_context.fillStyle = '#0000cc';
+    text_context.textAlign = 'center';
+    text_context.textBaseline = 'middle';
+    // カーニングなし
+    // text_context.fillText(message, text_canvas.width / 2, text_canvas.height / 2);
+
+
+    // カーニングあり
+    let x = text_canvas.width / 2 - (message.length * 20); // 初期x位置
+    const y = text_canvas.height / 2;
+    const letterSpacing = -10; // 調整する文字詰めの量（負の値で文字を詰める）
+
+    // 各文字を1文字ずつ描画
+    for (let i = 0; i < message.length; i++) {
+        text_context.fillText(message[i], x, y);
+        x += text_context.measureText(message[i]).width + letterSpacing; // 次の文字位置を調整
+    }
+
+    // テクスチャを更新
+    text_texture.needsUpdate = true;
+}
+
+
+function setupGoogleFont(scene){
+
+    text_context.clearRect(0, 0, text_canvas.width, text_canvas.height);
+
+    // GoogleフォントのURLを読み込む
+
+    const font = new FontFace('KiwiMaru', 'url(https://fonts.gstatic.com/s/roboto/v32/KFOlCnqEu92Fr1MmWUlfCRc4AMP6lbBP.woff2)');
+    document.fonts.load('20px "Kiwi Maru"').then((loadedFont) => {
+        // document.fonts.add(loadedFont);
+        updateCanvasText('こんにちは日本!')
+        // text_context.font = '100px Roboto';
+        // text_context.fillStyle = '#0000cc';
+        // text_context.fillText('Hello', text_canvas.width / 2 - text_canvas.width / 2, text_canvas.height);
+        // text_context.textAlign = 'center';
+        // text_context.textBaseline = 'middle';
+
+    });
+}
 
 function setupMainScene2(){
 
@@ -53,7 +134,7 @@ function setupMainScene2(){
         function ( font ) {
             // do something with the font
             console.log(font)
-            const textGeometry = new TextGeometry('Hello,Three.js!', {
+            const textGeometry = new TextGeometry(setting.message, {
                 font: font,
                 size: 1.5,
                 height: 0,
@@ -123,6 +204,13 @@ function resizeRendererToDisplaySize( renderer ) {
     }
     return needResize;
 }
+
+
+// 入力が変更されたときにパーティクルを更新
+input.addEventListener('input', (event) => {
+    const text = event.target.value;
+    updateCanvasText(text);
+});
 
 init();
 
