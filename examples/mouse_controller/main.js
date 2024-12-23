@@ -11,8 +11,10 @@ import * as dat from 'dat.gui';
 
 ////////
 let main_camera, main_scene, main_renderer;
-let main_material, main_mesh
+let main_material, main_mesh;
 let main_cube;
+let main_cube2, main_cube3, main_cube4, main_cube5;
+let main_cube6, main_cube7, main_cube8, main_cube9;
 const vertices = []
 const vertices_colors = []
 
@@ -117,10 +119,52 @@ function setupDebugger(){
 // 平面ジオメトリを更新する関数
 function setupMain() {
 
-    const geometry_cube = new THREE.BoxGeometry( 10, 10, 10 );
-    const material_cube = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    // const geometry_cube = new THREE.BoxGeometry( 10, 10, 10 );
+    const geometry_cube = new THREE.CircleGeometry( 10, 100, 10 );
+    // const material_cube = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    const material_cube = new THREE.MeshBasicMaterial( { color: 0xFFFFFF } );
     main_cube = new THREE.Mesh( geometry_cube, material_cube );
+    main_cube2 = new THREE.Mesh( geometry_cube, material_cube );
+    main_cube3 = new THREE.Mesh( geometry_cube, material_cube );
+    main_cube4 = new THREE.Mesh( geometry_cube, material_cube );
+    main_cube5 = new THREE.Mesh( geometry_cube, material_cube );
+    main_cube6 = new THREE.Mesh( geometry_cube, material_cube );
+    main_cube7 = new THREE.Mesh( geometry_cube, material_cube );
+    main_cube8 = new THREE.Mesh( geometry_cube, material_cube );
+    main_cube9 = new THREE.Mesh( geometry_cube, material_cube );
     main_scene.add( main_cube );
+    main_cube2.position.x = 10;
+    main_cube2.position.y = 30;
+    main_cube2.position.z = -30;
+    main_scene.add( main_cube2 );
+    main_cube3.position.x = 30;
+    main_cube3.position.y = 10;
+    main_cube3.position.z = -60;
+    main_scene.add( main_cube3 );
+    main_cube4.position.x = 0;
+    main_cube4.position.y = 0;
+    main_cube4.position.z = -90;
+    main_scene.add( main_cube4 );
+    main_cube5.position.x = 10;
+    main_cube5.position.y = 30;
+    main_cube5.position.z = -120;
+    main_scene.add( main_cube5 );
+    main_cube6.position.x = 30;
+    main_cube6.position.y = 10;
+    main_cube6.position.z = -150;
+    main_scene.add( main_cube6 );
+    main_cube7.position.x = 0;
+    main_cube7.position.y = 0;
+    main_cube7.position.z = -180;
+    main_scene.add( main_cube7 );
+    main_cube8.position.x = 10;
+    main_cube8.position.y = 30;
+    main_cube8.position.z = -210;
+    main_scene.add( main_cube8 );
+    main_cube9.position.x = 30;
+    main_cube9.position.y = 10;
+    main_cube9.position.z = -240;
+    main_scene.add( main_cube9 );
 
 
     //ジオメトリ
@@ -177,8 +221,9 @@ function setupCamera(){
         _SETTING.CAMERA_far
     );
     main_camera.position.z = 20;
-    main_camera.position.set( 30,20, 70);
-    main_camera.lookAt( 0, 0, 0 );
+    main_camera.position.set( 15,15, 50);
+    main_camera.lookAt( 15, 15, 0 );
+    // main_camera.lookAt( 0, 0, 0 );
     // const orbit = new OrbitControls(main_camera, canvas);
     // orbit.update();
 }
@@ -209,7 +254,7 @@ function render(time){
 
     step += guiOption.speed
     // main_camera.lookAt( 0, 0, 0 );
-    main_camera.lookAt( main_cube.position.x, main_cube.position.y, main_cube.position.z );
+    // main_camera.lookAt( main_cube.position.x, main_cube.position.y, main_cube.position.z );
 
     main_renderer.render( main_scene, main_camera );
 }
@@ -236,7 +281,7 @@ init();
 
 function setupFog() {
     // フォグ
-    // main_scene.fog = new THREE.FogExp2(0xFFFFFF, 0.01);
+    main_scene.fog = new THREE.FogExp2(0xFFFFFF, 0.01);
 }
 function setupHelpers(){
 
@@ -254,5 +299,13 @@ let zoomSpeed = 0.05; // ズームの速度
 window.addEventListener('wheel', (event) => {
     console.log(event.deltaY)
     main_cube.position.z += event.deltaY * zoomSpeed;
-    main_camera.position.z += event.deltaY * zoomSpeed;
+    main_cube2.position.z += event.deltaY * zoomSpeed;
+    main_cube3.position.z += event.deltaY * zoomSpeed;
+    main_cube4.position.z += event.deltaY * zoomSpeed;
+    main_cube5.position.z += event.deltaY * zoomSpeed;
+    main_cube6.position.z += event.deltaY * zoomSpeed;
+    main_cube7.position.z += event.deltaY * zoomSpeed;
+    main_cube8.position.z += event.deltaY * zoomSpeed;
+    main_cube9.position.z += event.deltaY * zoomSpeed;
+    // main_camera.position.z += event.deltaY * zoomSpeed;
 });
