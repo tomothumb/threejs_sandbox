@@ -1,0 +1,72 @@
+[
+    {
+        "url": "/demo1",
+        "title": "Demo1",
+        "description": "Demo1 of how to use the dynamic loading feature of the mouse controller.",
+        "icon": "fa fa-cogs",
+        "component": "DynamicLoading"
+    },
+    {
+        "url": "/demo2",
+        "title": "Demo2",
+        "description": "Demo2 of how to use the dynamic loading feature of the mouse controller.",
+        "icon": "fa fa-cogs",
+        "component": "DynamicLoading"
+    },
+    {
+        "url": "/demo3",
+        "title": "Demo3",
+        "description": "Demo3 of how to use the dynamic loading feature of the mouse controller.",
+        "icon": "fa fa-cogs",
+        "component": "DynamicLoading"
+    },
+    {
+        "url": "/demo4",
+        "title": "Demo4",
+        "description": "Demo4 of how to use the dynamic loading feature of the mouse controller.",
+        "icon": "fa fa-cogs",
+        "component": "DynamicLoading"
+    },
+    {
+        "url": "/demo5",
+        "title": "Demo5",
+        "description": "Demo5 of how to use the dynamic loading feature of the mouse controller.",
+        "icon": "fa fa-cogs",
+        "component": "DynamicLoading"
+    },
+    {
+        "url": "/demo6",
+        "title": "Demo6",
+        "description": "Demo6 of how to use the dynamic loading feature of the mouse controller.",
+        "icon": "fa fa-cogs",
+        "component": "DynamicLoading"
+    },
+    {
+        "url": "/demo7",
+        "title": "Demo7",
+        "description": "Demo7 of how to use the dynamic loading feature of the mouse controller.",
+        "icon": "fa fa-cogs",
+        "component": "DynamicLoading"
+    },
+    {
+        "url": "/demo8",
+        "title": "Demo8",
+        "description": "Demo8 of how to use the dynamic loading feature of the mouse controller.",
+        "icon": "fa fa-cogs",
+        "component": "DynamicLoading"
+    },
+    {
+        "url": "/demo9",
+        "title": "Demo9",
+        "description": "Demo9 of how to use the dynamic loading feature of the mouse controller.",
+        "icon": "fa fa-cogs",
+        "component": "DynamicLoading"
+    },
+    {
+        "url": "/demo10",
+        "title": "Demo10",
+        "description": "Demo10 of how to use the dynamic loading feature of the mouse controller.",
+        "icon": "fa fa-cogs",
+        "component": "DynamicLoading"
+    }
+]
