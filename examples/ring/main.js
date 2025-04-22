@@ -1,12 +1,20 @@
 import * as THREE from 'three';
 import {OrbitControls} from "three/addons/controls/OrbitControls";
 import {attachAmbientLight, attachCamera, attachHelpers, attachRenderer, attachScene} from "../common_lib/three_util";
-import {AnalogousSchemeStrategy, ColorGenerator} from "../common_lib/color_util";
+import {
+    AnalogousSchemeStrategy,
+    ColorGenerator,
+    ComplementarySchemeStrategy,
+    TriadSchemeStrategy
+} from "../common_lib/color_util";
+import {ArcAnimationController} from "../common_lib/animation_util";
 
 let main_camera, main_scene, main_renderer;
 const main_canvas = document.querySelector( '#webgl_canvas' );
 
-let data_arcs;
+let arcAnimationController;
+let arcProps;
+let arcObjects;
 
 const setting = {
     background_color: 0xEFEFEF,
@@ -36,19 +44,23 @@ function init(){
     main_scene = attachAmbientLight(main_scene);
 
     // n個の円弧を生成
-    const data_arcs = generateArcData(100);
-    // const data_arcs = generateStructuredArcs(100);
+    arcProps = generateArcData(400);
+    arcAnimationController = new ArcAnimationController(arcProps);
 
-    // 円弧を作成してシーンに追加
-    data_arcs.forEach(arc => {
-        const arc_obj = createArc(
+    // 円弧のジオメトリとマテリアルを作成
+    arcObjects = arcProps.map(arc => {
+        // ここで円弧のメッシュを作成
+        return createArc(
             arc.radius,
             arc.start,
             arc.end,
             arc.color,
             arc.thickness
         );
-        main_scene.add(arc_obj);
+    });
+
+    arcObjects.forEach(obj => {
+        main_scene.add(obj)
     });
 
     requestAnimationFrame( render );
@@ -59,8 +71,17 @@ function init(){
 
 function render(time){
     requestAnimationFrame( render );
-    // console.log('fn render')
-    time *= 0.001;
+
+    // 円弧のアニメーションを更新
+    arcAnimationController.update();
+
+    // 各円弧のメッシュを更新
+    arcObjects.forEach((mesh, index) => {
+        const arc = arcProps[index];
+        // console.log(mesh, arc);
+        updateArcRotation(mesh, arc);
+    });
+
 
     if ( resizeRendererToDisplaySize( main_renderer ) ) {
         const main_canvas = main_renderer.domElement;
@@ -138,21 +159,27 @@ function getRandomFloat(min, max) {
 
 // 円弧のパラメータを生成する関数
 function generateArcData(count) {
-    const data_arcs = [];
-    const minRadius = 1.0;
-    const radiusStep = 0.2;
-    const minArcLength = Math.PI * (15/180);  // 15度
-    const maxArcLength = Math.PI * (60/180);  // 60度
-    const minThickness = 0.2;
-    const maxThickness = 0.8;
+    const arcProps = [];
+    const minRadius = 15.0;
+    const radiusStep = 0.15;
+    const minArcLength = Math.PI * (60/180);  // 15度
+    const maxArcLength = Math.PI * (120/180);  // 60度
+    const minThickness = 0.1;
+    const maxThickness = 0.4;
+    // 回転速度のパラメータ
+    const minRotationSpeed = 0.1;  // 1回転あたり最小10秒
+    const maxRotationSpeed = 0.5;  // 1回転あたり最小2秒
 
 
     const colorGen = new ColorGenerator(0.025) // エンジ色をベース
+            // .setMainStrategy(new ComplementarySchemeStrategy())
+            // .setMainStrategy(new TriadSchemeStrategy())
         .setMainStrategy(new AnalogousSchemeStrategy({
             analogousRange: 0.1,
             saturation: { min: 0.6, max: 0.9 },
             lightness: { min: 0.5, max: 0.8 }
-        }));
+        }))
+    ;
     const colors = colorGen.generateColorScheme(count);
 
 
@@ -163,6 +190,8 @@ function generateArcData(count) {
         const startAngle = getRandomFloat(0, Math.PI * 2);
         // 線の太さをランダムに決定
         const thickness = getRandomFloat(minThickness, maxThickness);
+        // 回転方向をランダムに決定（1 or -1）
+        const rotationDirection = Math.random() > 0.5 ? 1 : -1;
 
         const arc = {
             radius: minRadius + (i * radiusStep),  // 半径を段階的に大きくする
@@ -170,20 +199,63 @@ function generateArcData(count) {
             end: startAngle + arcLength,
             // color: getRandomColor(),
             color: colors[i],
-            thickness: thickness  // 太さの情報を追加
+            thickness: thickness,  // 太さの情報を追加
+            // アニメーション用のパラメータを追加
+            rotation: {
+                speed: rotationDirection * getRandomFloat(minRotationSpeed, maxRotationSpeed),
+                current: 0 // 現在の回転角度
+            }
+
         };
 
-        data_arcs.push(arc);
+        arcProps.push(arc);
     }
 
-    return data_arcs;
+    return arcProps;
 }
 
 
 
 
+// 円弧のジオメトリを更新する関数
+function updateArcGeometry(mesh, arc) {
+    // 既存の円弧ジオメトリ更新ロジック
+    const curve = new THREE.EllipseCurve(
+        0, 0,                                     // 中心のx, y
+        arc.radius, arc.radius,                   // x半径, y半径
+        arc.currentStart, arc.currentEnd,         // 開始角度、終了角度
+        false,                                    // 時計回りかどうか
+        0                                         // 回転角度
+    );
+
+    const points = curve.getPoints(50);
+
+    // 更新フラグを設定
+    const geometry = new THREE.BufferGeometry().setFromPoints(points);
+    // // メッシュの位置を更新
+    mesh.geometry.dispose();
+    mesh.geometry = geometry;
+}
 
 
+function createArcGeometry(arc) {
+    const curve = new THREE.EllipseCurve(
+        0, 0,                           // 中心のx, y
+        arc.radius, arc.radius,         // x半径, y半径
+        arc.start, arc.end,            // 開始角度、終了角度
+        false,                          // 時計回りかどうか
+        0                              // 回転角度
+    );
+
+    const points = curve.getPoints(50);
+    return new THREE.BufferGeometry().setFromPoints(points);
+}
+
+// アニメーション更新用の関数
+function updateArcRotation(mesh, arc) {
+    // メッシュの回転を直接更新
+    mesh.rotation.z = arc.rotation.current;
+}
 
 
 
