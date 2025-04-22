@@ -107,11 +107,13 @@ export class TriadSchemeStrategy extends ColorSchemeStrategy {
 
     generateColors(baseHue, count) {
         const colors = [];
-        const triadAngles = [0, 0.333, 0.666]; // 120度ずつ
+        // 正確に120度（1/3）ずつ配置
+        const triadAngles = [0, 120, 240];
 
         for (let i = 0; i < count; i++) {
             const triadIndex = i % 3;
-            const hue = ColorUtils.normalizeHue(baseHue + triadAngles[triadIndex]);
+            // 正確な角度計算
+            const hue = ((baseHue * 360 + triadAngles[triadIndex]) % 360) / 360;
 
             const saturation = ColorUtils.random(
                 this.options.saturation.min,
@@ -125,8 +127,28 @@ export class TriadSchemeStrategy extends ColorSchemeStrategy {
 
             colors.push(ColorUtils.hslToHex(hue, saturation, lightness));
         }
+
+        // 残りの色を埋める（count が3で割り切れない場合）
+        while (colors.length < count) {
+            const randomTriadIndex = Math.floor(Math.random() * 3);
+            const hue = ColorUtils.normalizeHue(baseHue + triadAngles[randomTriadIndex]);
+
+            const saturation = ColorUtils.random(
+                this.options.saturation.min,
+                this.options.saturation.max
+            );
+
+            const lightness = ColorUtils.random(
+                this.options.lightness.min,
+                this.options.lightness.max
+            );
+
+            colors.push(ColorUtils.hslToHex(hue, saturation, lightness));
+        }
+
         return colors;
     }
+
 }
 
 // グレースケール戦略

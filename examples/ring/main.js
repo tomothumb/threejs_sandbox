@@ -4,7 +4,7 @@ import {attachAmbientLight, attachCamera, attachHelpers, attachRenderer, attachS
 import {
     AnalogousSchemeStrategy,
     ColorGenerator,
-    ComplementarySchemeStrategy,
+    ComplementarySchemeStrategy, MonotoneWithAccentStrategy,
     TriadSchemeStrategy
 } from "../common_lib/color_util";
 import {ArcAnimationController} from "../common_lib/animation_util";
@@ -40,7 +40,7 @@ function init(){
     // const orbit = new OrbitControls(main_camera, main_canvas);
     // orbit.update();
 
-    main_scene = attachHelpers(main_scene);
+    // main_scene = attachHelpers(main_scene);
     main_scene = attachAmbientLight(main_scene);
 
     // n個の円弧を生成
@@ -160,24 +160,23 @@ function getRandomFloat(min, max) {
 // 円弧のパラメータを生成する関数
 function generateArcData(count) {
     const arcProps = [];
-    const minRadius = 15.0;
+    const minRadius = 10.0;
     const radiusStep = 0.15;
     const minArcLength = Math.PI * (60/180);  // 15度
     const maxArcLength = Math.PI * (120/180);  // 60度
     const minThickness = 0.1;
     const maxThickness = 0.4;
     // 回転速度のパラメータ
-    const minRotationSpeed = 0.1;  // 1回転あたり最小10秒
+    const minRotationSpeed = 0.005;  // 1回転あたり最小10秒
     const maxRotationSpeed = 0.5;  // 1回転あたり最小2秒
 
 
-    const colorGen = new ColorGenerator(0.025) // エンジ色をベース
-            // .setMainStrategy(new ComplementarySchemeStrategy())
-            // .setMainStrategy(new TriadSchemeStrategy())
+    const colorGen = new ColorGenerator(0.185) // エンジ色をベース
+        // .setMainStrategy(new MonotoneWithAccentStrategy())
         .setMainStrategy(new AnalogousSchemeStrategy({
             analogousRange: 0.1,
-            saturation: { min: 0.6, max: 0.9 },
-            lightness: { min: 0.5, max: 0.8 }
+            saturation: { min: 0.8, max: 0.9 },
+            lightness: { min: 0.7, max: 0.9 }
         }))
     ;
     const colors = colorGen.generateColorScheme(count);
