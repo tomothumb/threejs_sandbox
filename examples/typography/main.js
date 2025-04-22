@@ -18,9 +18,9 @@ document.body.appendChild(input);
 
 const setting = {
     background_color: 0xEFEFEF,
-    fov: 35,
-    near : .1,
-    far: 1000,
+    camera_fov: 35,
+    camera_near : .1,
+    camera_far: 1000,
 
     camera_x: 15,
     camera_y: 10,

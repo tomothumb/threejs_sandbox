@@ -24,10 +24,10 @@ export const attachScene = (background_color) => {
 export const attachCamera = (setting, canvas) => {
     // カメラ
     const camera = new THREE.PerspectiveCamera(
-        setting.fov,
+        setting.camera_fov,
         canvas.clientWidth / canvas.clientHeight,
-        setting.near,
-        setting.far
+        setting.camera_near,
+        setting.camera_far
     );
     camera.position.z = 20;
     // camera.position.set( 25,30, 80);
