@@ -52,6 +52,7 @@
             overflow: hidden;
             backdrop-filter: blur(3px);
             filter: url(#glass-distortion);
+            /*background: black;*/
         }
 
         .tint {
@@ -163,26 +164,16 @@
 <svg style="display: none">
     <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%" filterUnits="objectBoundingBox">
         <!-- feTurbulence generates a noise texture -->
-        <feTurbulence type="fractalNoise" baseFrequency="0.01 0.01" numOctaves="1" seed="5" result="turbulence" />
-
-        <!-- feDisplacementMap distorts the SourceGraphic using the noise texture -->
-        <feComponentTransfer in="turbulence" result="mapped">
-            <feFuncR type="gamma" amplitude="1" exponent="10" offset="0.5" />
-            <feFuncG type="gamma" amplitude="0" exponent="1" offset="0" />
-            <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5" />
-        </feComponentTransfer>
+        <feTurbulence type="fractalNoise" baseFrequency="0.001 0.0001" numOctaves="1" seed="5" result="turbulence" />
 
         <!-- feGaussianBlur softens the noise texture -->
-        <feGaussianBlur in="turbulence" stdDeviation="30" result="softMap" />
+        <feGaussianBlur in="turbulence" stdDeviation="100" result="softMap" />
 
         <!-- feSpecularLighting creates a specular highlight on the SourceGraphic -->
         <feSpecularLighting in="softMap" surfaceScale="5" specularConstant="1" specularExponent="100"
                             lighting-color="white" result="specLight">
             <fePointLight x="-200" y="-200" z="300" />
         </feSpecularLighting>
-
-        <!-- feComposite combines the specular highlight with the SourceGraphic -->
-        <feComposite in="specLight" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litImage"  in2=""/>
 
         <!-- feColorMatrix adjusts the color of the SourceGraphic -->
         <feDisplacementMap in="SourceGraphic" in2="softMap" scale="150" xChannelSelector="R" yChannelSelector="G" />
